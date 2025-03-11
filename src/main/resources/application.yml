@@ -1,0 +1,20 @@
+spring:
+    application:
+        name: open-music-api
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/open_music?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+        username: root
+        password: 123456
+    sql:
+        init:
+            schema-locations: classpath:db/schema-mysql.sql
+            data-locations: classpath:db/data-mysql.sql
+            mode: embedded
+
+mybatis-plus:
+    type-handlers-package: com.spidey.openmusicapi.handler
+
+logging:
+    level:
+        com.spidey.openmusicapi: debug
