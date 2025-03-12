@@ -31,11 +31,12 @@ public class PageWrapper<T> {
         data.setPages(page.getPages());
         data.setKeyword(keyword.isEmpty() ? null : keyword);
         data.setOrderBy(sort.isEmpty() ? null : Map.entry(sort, order));
-        data.setFilters(filters.length == 0 ? null : new HashMap<>());
+        Map<String, List<?>> tempFilters = new HashMap<>();
         for (Map.Entry<String, List<?>> filter : filters) {
             if (filter.getValue().isEmpty()) continue;
-            data.getFilters().put(filter.getKey(), filter.getValue());
+            tempFilters.put(filter.getKey(), filter.getValue());
         }
+        data.setFilters(tempFilters.isEmpty() ? null : tempFilters);
         return data;
     }
 }
