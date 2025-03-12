@@ -1,69 +1,42 @@
-package com.spidey.openmusicapi.controller;
+package com.spidey.openmusicapi.common;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.spidey.openmusicapi.common.ApiResponse;
-import com.spidey.openmusicapi.common.PageWrapper;
-import com.spidey.openmusicapi.entity.UserDO;
 import com.spidey.openmusicapi.enums.OrderType;
-import com.spidey.openmusicapi.exception.CustomException;
-import com.spidey.openmusicapi.service.IUserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import lombok.Data;
 
-import static com.spidey.openmusicapi.utils.IdentifierUtils.toSnakeCase;
+import java.util.*;
 
-import java.util.List;
-import java.util.Map;
+@Data
+public class PageWrapper<T> {
 
-@RequiredArgsConstructor
-@RequestMapping("/api/user")
-@RestController
-public class UserController {
+    private List<T> records = Collections.emptyList();
+    private Long size = 10L;
+    private Long total = 0L;
+    private Long current = 1L;
+    private Long pages = 0L;
+    private String keyword = null;
+    private Map.Entry<String, OrderType> orderBy;
+    private Map<String, List<?>> filters;
 
-    private final IUserService userService;
-
-    @GetMapping("{userId}")
-    public ApiResponse<UserDO> getUser(@PathVariable Long userId) {
-        UserDO user = userService.getByIdDeep(userId);
-        if (user == null) {
-            throw new CustomException(HttpStatus.NOT_FOUND, "用户不存在");
+    @SafeVarargs
+    public static <T> PageWrapper<T> wrapPage(
+            com.baomidou.mybatisplus.extension.plugins.pagination.Page<T> page,
+            String keyword,
+            String sort, OrderType order,
+            Map.Entry<String, List<?>>... filters) {
+        PageWrapper<T> data = new PageWrapper<>();
+        data.setRecords(page.getRecords());
+        data.setSize(page.getSize());
+        data.setTotal(page.getTotal());
+        data.setCurrent(page.getCurrent());
+        data.setPages(page.getPages());
+        data.setKeyword(keyword.isEmpty() ? null : keyword);
+        data.setOrderBy(sort.isEmpty() ? null : Map.entry(sort, order));
+        Map<String, List<?>> tempFilters = new HashMap<>();
+        for (Map.Entry<String, List<?>> filter : filters) {
+            if (filter.getValue().isEmpty()) continue;
+            tempFilters.put(filter.getKey(), filter.getValue());
         }
-        return ApiResponse.success("查询成功", user);
+        data.setFilters(tempFilters.isEmpty() ? null : tempFilters);
+        return data;
     }
-
-    @GetMapping("list")
-    public ApiResponse<PageWrapper<UserDO>> listUser(
-            @RequestParam(required = false, defaultValue = "1") Integer current,
-            @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false, defaultValue = "") String sort,
-            @RequestParam(required = false, defaultValue = "asc") OrderType order,
-            @RequestParam(required = false, defaultValue = "") String keyword,
-            @RequestParam(required = false, defaultValue = "") List<Long> roleId,
-            @RequestParam(required = false, defaultValue = "") List<String> status
-    ) {
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<UserDO> page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(current, size);
-        QueryWrapper<UserDO> wrapper = new QueryWrapper<>();
-        wrapper.orderBy(! sort.isEmpty(), order == OrderType.ASC, sort);
-        wrapper.and(! keyword.isEmpty(), qw -> qw
-                .like(UserDO.Fields.username, keyword)
-                .or()
-                .like(UserDO.Fields.nickname, keyword)
-                .or()
-                .like(UserDO.Fields.email, keyword)
-                .or()
-                .like(UserDO.Fields.phone, keyword)
-        );
-        wrapper.in(! roleId.isEmpty(), toSnakeCase(UserDO.Fields.roleId), roleId);
-        wrapper.in(! status.isEmpty(), UserDO.Fields.status, status);
-        return ApiResponse.success("查询成功",
-                PageWrapper.wrapPage(
-                        userService.pageDeep(page, wrapper),
-                        keyword,
-                        sort, order,
-                        Map.entry(UserDO.Fields.roleId, roleId),
-                        Map.entry(UserDO.Fields.status, status)
-                ));
-    }
-
 }
