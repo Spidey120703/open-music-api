@@ -22,4 +22,9 @@ public class CustomException extends RuntimeException {
         this.code = httpStatus.value();
     }
 
+    public CustomException(int code, String message) {
+        super(message);
+        this.code = code;
+    }
+
 }

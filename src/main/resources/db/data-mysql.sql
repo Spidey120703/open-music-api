@@ -1,8 +1,8 @@
 DELETE FROM `role` WHERE 1;
 
-INSERT INTO `role` (`id`, `name`, `type`)
-VALUES (1, 'admin', 'primary'),
-       (2, 'user', 'info');
+INSERT INTO `role` (`id`, `name`, `type`, description)
+VALUES (1, 'admin', 'danger', '管理员'),
+       (2, 'user', 'primary', '用户');
 
 DELETE FROM `user` WHERE 1;
 

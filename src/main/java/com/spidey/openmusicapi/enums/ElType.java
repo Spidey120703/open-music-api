@@ -5,14 +5,18 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * ElementPlus Color Variant Type
+ */
 @Getter
 @AllArgsConstructor
-public enum TagType {
+public enum ElType {
     PRIMARY("primary"),
     SUCCESS("success"),
     INFO("info"),
     WARNING("warning"),
-    DANGER("danger");
+    DANGER("danger"),
+    DEFAULT("");
 
     @EnumValue
     @JsonValue

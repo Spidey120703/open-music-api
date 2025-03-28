@@ -1,0 +1,4 @@
+pyyaml
+urllib3
+mysql-connector-python
+sqlparse

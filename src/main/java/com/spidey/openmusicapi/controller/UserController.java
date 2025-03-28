@@ -1,61 +1,60 @@
 package com.spidey.openmusicapi.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.spidey.openmusicapi.common.ApiResponse;
+import com.spidey.openmusicapi.common.SFModel;
+import com.spidey.openmusicapi.common.SFPage;
 import com.spidey.openmusicapi.entity.UserDO;
-import com.spidey.openmusicapi.enums.OrderType;
-import com.spidey.openmusicapi.exception.CustomException;
 import com.spidey.openmusicapi.service.IUserService;
+import com.spidey.openmusicapi.utils.SFPageUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import static com.spidey.openmusicapi.utils.IdentifierUtils.toSnakeCase;
 
 import java.util.List;
 
+import static com.spidey.openmusicapi.utils.ControllerUtils.*;
+
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 @RestController
 public class UserController {
 
     private final IUserService userService;
 
     @GetMapping("{userId}")
-    public ApiResponse<UserDO> getUser(@PathVariable Long userId) {
-        UserDO user = userService.getByIdDeep(userId);
-        if (user == null) {
-            throw new CustomException(HttpStatus.NOT_FOUND, "用户不存在");
-        }
-        return ApiResponse.success("查询成功", user);
+    public ApiResponse<UserDO> getUserById(@PathVariable Long userId) {
+        return getSuccess(checkNull(userService.getByIdDeep(userId), "用户不存在"));
     }
 
-    @GetMapping("list")
-    public ApiResponse<IPage<UserDO>> listUser(
-            @RequestParam(required = false, defaultValue = "1", name = "page") Integer current,
-            @RequestParam(required = false, defaultValue = "10", name = "limit") Integer size,
-            @RequestParam(required = false, defaultValue = "") String sort,
-            @RequestParam(required = false, defaultValue = "asc") String order,
-            @RequestParam(required = false, defaultValue = "") String keyword,
-            @RequestParam(required = false, defaultValue = "") List<Long> roleId,
-            @RequestParam(required = false, defaultValue = "") List<String> status
-    ) {
-        Page<UserDO> page = new Page<>(current, size);
-        QueryWrapper<UserDO> wrapper = new QueryWrapper<>();
-        wrapper.orderBy(! sort.isEmpty(), ! order.equalsIgnoreCase(OrderType.DESC.getType()), sort);
-        wrapper.and(! keyword.isEmpty(), qw -> qw
-                .like(UserDO.Fields.username, keyword)
-                .or()
-                .like(UserDO.Fields.nickname, keyword)
-                .or()
-                .like(UserDO.Fields.email, keyword)
-                .or()
-                .like(UserDO.Fields.phone, keyword)
-        );
-        wrapper.in(! roleId.isEmpty(), toSnakeCase(UserDO.Fields.roleId), roleId);
-        wrapper.in(! status.isEmpty(), UserDO.Fields.status, status);
-        return ApiResponse.success("查询成功", userService.pageDeep(page, wrapper));
+    @GetMapping
+    public ApiResponse<SFPage<UserDO>> getUsersByPage(@ModelAttribute SFModel model) {
+        return getSuccess(
+                SFPageUtils.pagingDeep(
+                        userService,
+                        model,
+                        List.of(
+                                UserDO.Fields.username,
+                                UserDO.Fields.nickname,
+                                UserDO.Fields.email,
+                                UserDO.Fields.phone
+                        )));
+    }
+
+
+    @PostMapping
+    public ApiResponse<Boolean> addUser(@RequestBody @Validated UserDO user) {
+        return verifyCreateResult(userService.save(user));
+    }
+
+    @PutMapping("{userId}")
+    public ApiResponse<Boolean> updateUserById(@PathVariable Long userId, @RequestBody @Validated UserDO user) {
+        user.setId(userId);
+        return verifyUpdateResult(userService.updateById(user));
+    }
+
+    @DeleteMapping("{userId}")
+    public ApiResponse<Boolean> deleteUser(@PathVariable Long userId) {
+        return verifyDeleteResult(userService.removeById(userId));
     }
 
 }
