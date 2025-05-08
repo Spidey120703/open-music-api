@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.Date;
 
@@ -22,12 +21,12 @@ public class UserDO {
     private Long id;
 
     @Length(min = 4, max = 16, message = "用户名长度在4-16位之间")
-    @UniqueElements(message = "用户名已存在")
+    @NotBlank(message = "用户名不能为空")
     private String username;
 
     @TableField(select = false)
-    @NotBlank(message = "密码不能为空")
     private String password;
+
     private String avatar;
     private String nickname;
 
@@ -46,7 +45,6 @@ public class UserDO {
 
     private UserStatus status;
 
-    @TableField(fill = FieldFill.INSERT)
     private Date registeredAt;
 
     @TableLogic

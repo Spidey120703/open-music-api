@@ -1,3 +1,5 @@
+
+
 spring:
     application:
         name: open-music-api
@@ -11,6 +13,9 @@ spring:
             schema-locations: classpath:db/schema-mysql.sql
             data-locations: classpath:db/data-mysql.sql
             mode: embedded
+    jackson:
+        date-format: yyyy-MM-dd HH:mm:ss
+        time-zone: GMT+8
 
 mybatis-plus:
     global-config:
@@ -25,3 +30,8 @@ mybatis-plus:
 logging:
     level:
         com.spidey.openmusicapi: debug
+
+server:
+    port: 8080
+
+

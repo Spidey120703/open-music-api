@@ -2,10 +2,10 @@ package com.spidey.openmusicapi.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.github.yulichang.annotation.EntityMapping;
+import com.spidey.openmusicapi.enums.MenuType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.Date;
 import java.util.List;
@@ -19,7 +19,6 @@ public class MenuDO {
     private Long id;
 
     @NotBlank(message = "菜单名不能为空")
-    @UniqueElements(message = "菜单名已存在")
     private String name;
 
     @NotBlank(message = "路由不能为空")
@@ -27,6 +26,7 @@ public class MenuDO {
     private String icon;
     private String title;
     private Boolean hidden;
+    private MenuType type;
     private Long parentId;
 
     @TableField(exist = false)
@@ -40,7 +40,6 @@ public class MenuDO {
     @TableField(exist = false)
     private Boolean hasChildren;
 
-    @TableField(fill = FieldFill.INSERT)
     private Date createdAt;
 
     @TableLogic

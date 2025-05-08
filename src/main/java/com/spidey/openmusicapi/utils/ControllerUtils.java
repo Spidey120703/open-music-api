@@ -1,77 +1,100 @@
 package com.spidey.openmusicapi.utils;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.spidey.openmusicapi.common.ApiResponse;
-import com.spidey.openmusicapi.exception.CustomException;
+import com.spidey.openmusicapi.exception.BadRequestException;
+import com.spidey.openmusicapi.exception.GlobalException;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpStatus;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import org.springframework.lang.Contract;
 
 @UtilityClass
 public class ControllerUtils {
 
+    @Contract("_ -> new")
+    @NonNull
     public static <T> T checkNull(T entity, String message) {
         if (entity == null) {
-            throw new CustomException(HttpStatus.NOT_FOUND, message);
+            throw new GlobalException(HttpStatus.NOT_FOUND, message);
         }
         return entity;
     }
 
+    @Contract("_ -> new")
+    @NonNull
     public static <T> T checkNull(T entity) {
         return checkNull(entity, "数据不存在");
     }
 
     /**
-     * 更新预处理，确保id一致性
-     *
-     * @param entity DO实体
-     * @param id 实体ID
-     * @param message 错误信息
-     * @return 处理后的实体对象
+     * 检查唯一标识符
+     * @param service 服务
+     * @param entity 实体
+     * @param msg 提示消息
+     * @param identifierGetter 获取唯一标识符的getter
+     * @param keyGetter 获取主键的getter
      * @param <T> 实体类型
      */
-    public static <T> T updatePrepare(T entity, Long id, String message) {
-        try {
-            Method idGetter = entity.getClass().getMethod("getId");
-            Method idSetter = entity.getClass().getMethod("setId", Long.class);
-            if (idGetter.invoke(entity) == null) {
-                idSetter.invoke(entity, id);
-            } else if (((Long) idGetter.invoke(entity)).longValue() != id.longValue()) {
-                throw new CustomException(message);
-            }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+    public static <T> void checkUniqueIdentifier(
+            IService<T> service,
+            T entity,
+            String msg,
+            @NonNull SFunction<T, String> identifierGetter,
+            @NonNull SFunction<T, ?> keyGetter) {
+
+        LambdaQueryWrapper<T> wrapper = new LambdaQueryWrapper<>();
+
+        wrapper.eq(identifierGetter, identifierGetter.apply(entity));
+        if (keyGetter.apply(entity) != null) {
+            wrapper.ne(keyGetter, keyGetter.apply(entity));
         }
-        return entity;
+
+        if (service.getOne(wrapper) != null) {
+            throw new BadRequestException(msg);
+        }
     }
 
-    public static <T> T updatePrepare(T entity, Long id) {
-        return updatePrepare(entity, id, "ID不一致");
-    }
-
+    @Contract("_ -> new")
+    @NonNull
     public static <T> ApiResponse<T> getSuccess(T data) {
         return ApiResponse.success("查询成功", data);
     }
 
+    @Contract("_ -> new")
+    @NonNull
     public static ApiResponse<Boolean> verifyCreateResult(Boolean result) {
         if (!result) {
-            throw new CustomException("添加失败");
+            throw new BadRequestException("添加失败");
         }
-        return ApiResponse.success("添加成功", true);
+        return ApiResponse.created();
     }
 
+    @NonNull
+    public static ApiResponse<Boolean> verifyUpdateResult(Boolean result, String successMsg, String failMsg) {
+        if (!result) {
+            throw new BadRequestException(failMsg);
+        }
+        return ApiResponse.success(successMsg, true);
+    }
+
+    @NonNull
     public static ApiResponse<Boolean> verifyUpdateResult(Boolean result) {
-        if (!result) {
-            throw new CustomException("更新失败");
-        }
-        return ApiResponse.success("更新成功", true);
+        return verifyUpdateResult(result, "更新成功", "更新失败");
     }
 
-    public static ApiResponse<Boolean> verifyDeleteResult(Boolean result) {
+    @NonNull
+    public static ApiResponse<Boolean> verifyDeleteResult(Boolean result, String successMsg, String failMsg) {
         if (!result) {
-            throw new CustomException("删除失败");
+            return ApiResponse.noContent(failMsg);
         }
-        return ApiResponse.success("删除成功", true);
+        return ApiResponse.success(successMsg, true);
+    }
+
+    @NonNull
+    public static ApiResponse<Boolean> verifyDeleteResult(Boolean result) {
+        return verifyDeleteResult(result, "删除成功", "删除失败");
     }
 }

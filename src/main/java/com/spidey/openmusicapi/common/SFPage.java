@@ -27,18 +27,31 @@ public class SFPage<T> {
     private Pair<String, OrderType> orderBy;
     private Map<String, List<String>> filters;
 
-    public static <T> SFPage<T> merge(
+    /**
+     * 用于从IPage中继承数据
+     *
+     * @param page IPage分页结果
+     * @param model 参数模型
+     * @return SFPage分页结果
+     * @param <T> 实体类型
+     */
+    public static <T> SFPage<T> extend(
             IPage<T> page,
             SFModel model) {
-        return new SFPage<T>()
-                .setRecords(page.getRecords())
+        SFPage<T> sfPage = new SFPage<>();
+        sfPage.setRecords(page.getRecords())
                 .setSize(page.getSize())
                 .setTotal(page.getTotal())
                 .setCurrent(page.getCurrent())
                 .setPages(page.getPages())
-                .setKeyword(model.getKeyword())
-                .setFilters(model.getFilters())
-                .setOrderBy(Pair.of(model.getSort(), model.getOrder()));
+                .setKeyword(model.getKeyword());
+        if (! model.getFilters().isEmpty()) {
+            sfPage.setFilters(model.getFilters());
+        }
+        if (! model.getSort().isEmpty()) {
+            sfPage.setOrderBy(Pair.of(model.getSort(), model.getOrder()));
+        }
+        return sfPage;
     }
 
 }

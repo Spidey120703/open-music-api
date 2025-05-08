@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.spidey.openmusicapi.entity.MenuDO;
+import com.spidey.openmusicapi.entity.RouteDO;
 import com.spidey.openmusicapi.mapper.MenuMapper;
 import com.spidey.openmusicapi.service.IMenuService;
 import org.springframework.beans.BeanUtils;
@@ -14,6 +15,11 @@ import java.util.Stack;
 
 @Service
 public class MenuService extends MPJBaseServiceImpl<MenuMapper, MenuDO> implements IMenuService {
+
+    @Override
+    public List<RouteDO> getRoutes() {
+        return List.of();
+    }
 
     private boolean hasChildren(Long menuId) {
         LambdaQueryWrapper<MenuDO> wrapper = new LambdaQueryWrapper<MenuDO>()
@@ -27,6 +33,7 @@ public class MenuService extends MPJBaseServiceImpl<MenuMapper, MenuDO> implemen
                 id,
                 conf -> conf.property(MenuDO::getChildren).loop(true)
         );
+        if (menu == null) return null;
 
         Stack<MenuDO> stack = new Stack<>();
         stack.add(menu);

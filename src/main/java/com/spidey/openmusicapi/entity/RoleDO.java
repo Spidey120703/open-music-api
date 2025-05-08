@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.Date;
+
 @Data
 @FieldNameConstants
 @TableName("role")
@@ -17,13 +19,15 @@ public class RoleDO {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Length(min = 4, max = 16, message = "角色名长度在4-16位之间")
+    @Length(min = 3, max = 16, message = "角色名长度在3-16位之间")
     private String name;
 
-    @Length(min = 0, max = 16, message = "角色描述内容长度在4-16位之间")
-    private String description;
+    @Length(min = 3, max = 16, message = "角色标签内容长度在3-16位之间")
+    private String label;
 
     private ElType type;
+
+    private Date createdAt;
 
     @TableLogic
     private Boolean deleted;

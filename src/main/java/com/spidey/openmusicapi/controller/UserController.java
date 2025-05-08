@@ -4,13 +4,12 @@ import com.spidey.openmusicapi.common.ApiResponse;
 import com.spidey.openmusicapi.common.SFModel;
 import com.spidey.openmusicapi.common.SFPage;
 import com.spidey.openmusicapi.entity.UserDO;
+import com.spidey.openmusicapi.entity.UserDTO;
 import com.spidey.openmusicapi.service.IUserService;
 import com.spidey.openmusicapi.utils.SFPageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.spidey.openmusicapi.utils.ControllerUtils.*;
 
@@ -32,23 +31,25 @@ public class UserController {
                 SFPageUtils.pagingDeep(
                         userService,
                         model,
-                        List.of(
-                                UserDO.Fields.username,
-                                UserDO.Fields.nickname,
-                                UserDO.Fields.email,
-                                UserDO.Fields.phone
-                        )));
+                        UserDO.Fields.username,
+                        UserDO.Fields.nickname,
+                        UserDO.Fields.email,
+                        UserDO.Fields.phone));
     }
 
 
     @PostMapping
-    public ApiResponse<Boolean> addUser(@RequestBody @Validated UserDO user) {
+    public ApiResponse<Boolean> addUser(@RequestBody @Validated UserDTO user) {
+        checkUniqueIdentifier(userService, user, "用户名已存在", UserDO::getUsername, UserDO::getId);
+        user.setRoleId(user.getRole().getId());
         return verifyCreateResult(userService.save(user));
     }
 
     @PutMapping("{userId}")
     public ApiResponse<Boolean> updateUserById(@PathVariable Long userId, @RequestBody @Validated UserDO user) {
         user.setId(userId);
+        user.setRoleId(user.getRole().getId());
+        checkUniqueIdentifier(userService, user, "用户名已存在", UserDO::getUsername, UserDO::getId);
         return verifyUpdateResult(userService.updateById(user));
     }
 

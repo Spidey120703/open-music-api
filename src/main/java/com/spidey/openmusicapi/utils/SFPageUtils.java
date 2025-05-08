@@ -7,23 +7,35 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.yulichang.extension.mapping.base.MPJDeepService;
 import com.spidey.openmusicapi.common.SFModel;
 import com.spidey.openmusicapi.common.SFPage;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.spidey.openmusicapi.utils.IdentifierUtils.toSnakeCase;
 
 @UtilityClass
 public class SFPageUtils {
 
-    public <T> Pair<IPage<T>, QueryWrapper<T>> pagingPrepare(IService<T> service, SFModel model, List<String> columns) {
+    /**
+     * 可排序过滤搜索的分页查询参数预处理
+     *
+     * @param model   可排序过滤的分页参数模型
+     * @param columns 可搜索的字段
+     * @return 分页参数
+     */
+    private <T> IPage<T> prepareForPaging(
+            @NonNull BiFunction<IPage<T>, QueryWrapper<T>, IPage<T>> pageExecutor,
+            @NonNull SFModel model,
+            List<String> columns) {
         Page<T> page = new Page<>(model.getCurrent(), model.getSize());
         QueryWrapper<T> wrapper = new QueryWrapper<>();
+        // 搜索逻辑
         wrapper.and(
-                model.isSearching() && ! columns.isEmpty(),
+                model.isSearching() && !columns.isEmpty(),
                 qw -> {
-                    for (int i = 0; i < columns.size(); i ++) {
+                    for (int i = 0; i < columns.size(); i++) {
                         qw.like(toSnakeCase(columns.get(i)), model.getKeyword());
                         if (i + 1 < columns.size()) {
                             qw.or();
@@ -31,35 +43,49 @@ public class SFPageUtils {
                     }
                 }
         );
+        // 过滤逻辑
         wrapper.and(
                 model.isFiltering(),
                 qw -> model.getFilters().forEach((s, list) -> {
                     qw.in(toSnakeCase(s), list);
                 }));
+        // 排序逻辑
         wrapper.orderBy(model.isSorting(), model.isAscending(), toSnakeCase(model.getSort()));
-        return Pair.of(page, wrapper);
+        return pageExecutor.apply(page, wrapper);
     }
 
-    public <T> SFPage<T> paging(IService<T> service, SFModel model, List<String> columns) {
-        Pair<IPage<T>, QueryWrapper<T>> pair = pagingPrepare(service, model, columns);
-        return SFPage.merge(service.page(pair.getLeft(), pair.getRight()), model);
-    }
-    public <T> SFPage<T> paging(MPJDeepService<T> service, SFModel model, String column) {
-        return paging(service, model, List.of(column));
-    }
-    public <T> SFPage<T> paging(MPJDeepService<T> service, SFModel model) {
-        return paging(service, model, List.of());
+    /**
+     * 分页查询
+     *
+     * @param service IService服务
+     * @param model 可排序过滤的分页参数模型
+     * @param columns 可搜索的字段
+     * @return 分页查询结果
+     * @param <T> 实体类型
+     */
+    public <T> SFPage<T> paging(
+            @NonNull IService<T> service,
+            @NonNull SFModel model,
+            String... columns) {
+        IPage<T> iPage = prepareForPaging(service::page, model, List.of(columns));
+        return SFPage.extend(iPage, model);
     }
 
-    public <T> SFPage<T> pagingDeep(MPJDeepService<T> service, SFModel model, List<String> columns) {
-        Pair<IPage<T>, QueryWrapper<T>> pair = pagingPrepare(service, model, columns);
-        return SFPage.merge(service.pageDeep(pair.getLeft(), pair.getRight()), model);
-    }
-    public <T> SFPage<T> pagingDeep(MPJDeepService<T> service, SFModel model, String column) {
-        return pagingDeep(service, model, List.of(column));
-    }
-    public <T> SFPage<T> pagingDeep(MPJDeepService<T> service, SFModel model) {
-        return pagingDeep(service, model, List.of());
+    /**
+     * 分页查询 - 递归查询
+     *
+     * @param service IService服务
+     * @param model 可排序过滤的分页参数模型
+     * @param searchableColumns 可搜索的字段
+     * @return 分页查询结果
+     * @param <T> 实体类型
+     */
+    public <T> SFPage<T> pagingDeep(
+            @NonNull MPJDeepService<T> service,
+            @NonNull SFModel model,
+            String... searchableColumns) {
+        IPage<T> iPage = prepareForPaging(service::pageDeep, model, List.of(searchableColumns));
+        return SFPage.extend(iPage, model);
     }
 
 }

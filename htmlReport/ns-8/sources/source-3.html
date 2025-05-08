@@ -1,0 +1,181 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SFPageUtils</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.spidey.openmusicapi.utils</a>
+</div>
+
+<h1>Coverage Summary for Class: SFPageUtils (com.spidey.openmusicapi.utils)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SFPageUtils</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/22)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.spidey.openmusicapi.utils;
+&nbsp;
+&nbsp;import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+&nbsp;import com.baomidou.mybatisplus.core.metadata.IPage;
+&nbsp;import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+&nbsp;import com.baomidou.mybatisplus.extension.service.IService;
+&nbsp;import com.github.yulichang.extension.mapping.base.MPJDeepService;
+&nbsp;import com.spidey.openmusicapi.common.SFModel;
+&nbsp;import com.spidey.openmusicapi.common.SFPage;
+&nbsp;import lombok.experimental.UtilityClass;
+&nbsp;import org.apache.commons.lang3.tuple.Pair;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import static com.spidey.openmusicapi.utils.IdentifierUtils.toSnakeCase;
+&nbsp;
+&nbsp;@UtilityClass
+&nbsp;public class SFPageUtils {
+&nbsp;
+&nbsp;    public &lt;T&gt; Pair&lt;IPage&lt;T&gt;, QueryWrapper&lt;T&gt;&gt; pagingPrepare(IService&lt;T&gt; service, SFModel model, List&lt;String&gt; columns) {
+<b class="nc">&nbsp;        Page&lt;T&gt; page = new Page&lt;&gt;(model.getCurrent(), model.getSize());</b>
+<b class="nc">&nbsp;        QueryWrapper&lt;T&gt; wrapper = new QueryWrapper&lt;&gt;();</b>
+<b class="nc">&nbsp;        wrapper.and(</b>
+<b class="nc">&nbsp;                model.isSearching() &amp;&amp; ! columns.isEmpty(),</b>
+&nbsp;                qw -&gt; {
+<b class="nc">&nbsp;                    for (int i = 0; i &lt; columns.size(); i ++) {</b>
+<b class="nc">&nbsp;                        qw.like(toSnakeCase(columns.get(i)), model.getKeyword());</b>
+<b class="nc">&nbsp;                        if (i + 1 &lt; columns.size()) {</b>
+<b class="nc">&nbsp;                            qw.or();</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;        );
+<b class="nc">&nbsp;        wrapper.and(</b>
+<b class="nc">&nbsp;                model.isFiltering(),</b>
+<b class="nc">&nbsp;                qw -&gt; model.getFilters().forEach((s, list) -&gt; {</b>
+<b class="nc">&nbsp;                    qw.in(toSnakeCase(s), list);</b>
+&nbsp;                }));
+<b class="nc">&nbsp;        wrapper.orderBy(model.isSorting(), model.isAscending(), toSnakeCase(model.getSort()));</b>
+<b class="nc">&nbsp;        return Pair.of(page, wrapper);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public &lt;T&gt; SFPage&lt;T&gt; paging(IService&lt;T&gt; service, SFModel model, List&lt;String&gt; columns) {
+<b class="nc">&nbsp;        Pair&lt;IPage&lt;T&gt;, QueryWrapper&lt;T&gt;&gt; pair = pagingPrepare(service, model, columns);</b>
+<b class="nc">&nbsp;        return SFPage.merge(service.page(pair.getLeft(), pair.getRight()), model);</b>
+&nbsp;    }
+&nbsp;    public &lt;T&gt; SFPage&lt;T&gt; paging(MPJDeepService&lt;T&gt; service, SFModel model, String column) {
+<b class="nc">&nbsp;        return paging(service, model, List.of(column));</b>
+&nbsp;    }
+&nbsp;    public &lt;T&gt; SFPage&lt;T&gt; paging(MPJDeepService&lt;T&gt; service, SFModel model) {
+<b class="nc">&nbsp;        return paging(service, model, List.of());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public &lt;T&gt; SFPage&lt;T&gt; pagingDeep(MPJDeepService&lt;T&gt; service, SFModel model, List&lt;String&gt; columns) {
+<b class="nc">&nbsp;        Pair&lt;IPage&lt;T&gt;, QueryWrapper&lt;T&gt;&gt; pair = pagingPrepare(service, model, columns);</b>
+<b class="nc">&nbsp;        return SFPage.merge(service.pageDeep(pair.getLeft(), pair.getRight()), model);</b>
+&nbsp;    }
+&nbsp;    public &lt;T&gt; SFPage&lt;T&gt; pagingDeep(MPJDeepService&lt;T&gt; service, SFModel model, String column) {
+<b class="nc">&nbsp;        return pagingDeep(service, model, List.of(column));</b>
+&nbsp;    }
+&nbsp;    public &lt;T&gt; SFPage&lt;T&gt; pagingDeep(MPJDeepService&lt;T&gt; service, SFModel model) {
+<b class="nc">&nbsp;        return pagingDeep(service, model, List.of());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-10 20:48</div>
+</div>
+</body>
+</html>

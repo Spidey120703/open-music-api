@@ -1,0 +1,116 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MenuDO</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.spidey.openmusicapi.entity</a>
+</div>
+
+<h1>Coverage Summary for Class: MenuDO (com.spidey.openmusicapi.entity)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">MenuDO</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.spidey.openmusicapi.entity;
+&nbsp;
+&nbsp;import com.baomidou.mybatisplus.annotation.*;
+&nbsp;import com.github.yulichang.annotation.EntityMapping;
+&nbsp;import jakarta.validation.constraints.NotBlank;
+&nbsp;import lombok.Data;
+&nbsp;import lombok.experimental.FieldNameConstants;
+&nbsp;import org.hibernate.validator.constraints.UniqueElements;
+&nbsp;
+&nbsp;import java.util.Date;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@Data
+&nbsp;@FieldNameConstants
+&nbsp;@TableName(&quot;menu&quot;)
+&nbsp;public class MenuDO {
+&nbsp;
+&nbsp;    @TableId(type = IdType.AUTO)
+&nbsp;    private Long id;
+&nbsp;
+&nbsp;    @NotBlank(message = &quot;菜单名不能为空&quot;)
+&nbsp;    @UniqueElements(message = &quot;菜单名已存在&quot;)
+&nbsp;    private String name;
+&nbsp;
+&nbsp;    @NotBlank(message = &quot;路由不能为空&quot;)
+&nbsp;    private String route;
+&nbsp;    private String icon;
+&nbsp;    private String title;
+&nbsp;    private Boolean hidden;
+&nbsp;    private Long parentId;
+&nbsp;
+&nbsp;    @TableField(exist = false)
+&nbsp;    @EntityMapping(thisField = Fields.parentId, joinField = Fields.id)
+&nbsp;    private MenuDO parent;
+&nbsp;
+&nbsp;    @TableField(exist = false)
+&nbsp;    @EntityMapping(thisField = Fields.id, joinField = Fields.parentId)
+&nbsp;    private List&lt;MenuDO&gt; children;
+&nbsp;
+&nbsp;    @TableField(exist = false)
+&nbsp;    private Boolean hasChildren;
+&nbsp;
+&nbsp;    @TableField(fill = FieldFill.INSERT)
+&nbsp;    private Date createdAt;
+&nbsp;
+&nbsp;    @TableLogic
+&nbsp;    private Boolean deleted;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-10 20:48</div>
+</div>
+</body>
+</html>

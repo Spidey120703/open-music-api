@@ -1,0 +1,219 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MenuService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.spidey.openmusicapi.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: MenuService (com.spidey.openmusicapi.service.impl)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MenuService</td>
+<td class="coverageStat">
+  <span class="percent">
+    10%
+  </span>
+  <span class="absValue">
+    (1/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    2.9%
+  </span>
+  <span class="absValue">
+    (1/34)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MenuService$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    10%
+  </span>
+  <span class="absValue">
+    (1/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    2.9%
+  </span>
+  <span class="absValue">
+    (1/34)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.spidey.openmusicapi.service.impl;
+&nbsp;
+&nbsp;import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+&nbsp;import com.github.yulichang.base.MPJBaseServiceImpl;
+&nbsp;import com.github.yulichang.wrapper.MPJLambdaWrapper;
+&nbsp;import com.spidey.openmusicapi.entity.MenuDO;
+&nbsp;import com.spidey.openmusicapi.mapper.MenuMapper;
+&nbsp;import com.spidey.openmusicapi.service.IMenuService;
+&nbsp;import org.springframework.beans.BeanUtils;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Stack;
+&nbsp;
+&nbsp;@Service
+<b class="fc">&nbsp;public class MenuService extends MPJBaseServiceImpl&lt;MenuMapper, MenuDO&gt; implements IMenuService {</b>
+&nbsp;
+&nbsp;    private boolean hasChildren(Long menuId) {
+<b class="nc">&nbsp;        LambdaQueryWrapper&lt;MenuDO&gt; wrapper = new LambdaQueryWrapper&lt;MenuDO&gt;()</b>
+<b class="nc">&nbsp;                .eq(MenuDO::getParentId, menuId);</b>
+<b class="nc">&nbsp;        return count(wrapper) &gt; 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public MenuDO getById(Long id) {
+<b class="nc">&nbsp;        MenuDO menu = getByIdDeep(</b>
+&nbsp;                id,
+<b class="nc">&nbsp;                conf -&gt; conf.property(MenuDO::getChildren).loop(true)</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        Stack&lt;MenuDO&gt; stack = new Stack&lt;&gt;();</b>
+<b class="nc">&nbsp;        stack.add(menu);</b>
+<b class="nc">&nbsp;        while (! stack.empty()) {</b>
+<b class="nc">&nbsp;            MenuDO top = stack.pop();</b>
+<b class="nc">&nbsp;            MenuDO tmp = new MenuDO();</b>
+<b class="nc">&nbsp;            if (top.getChildren() != null) {</b>
+<b class="nc">&nbsp;                for (MenuDO child : top.getChildren()) {</b>
+<b class="nc">&nbsp;                    BeanUtils.copyProperties(child, tmp, &quot;parent&quot;, &quot;children&quot;);</b>
+<b class="nc">&nbsp;                    child.setParent(tmp);</b>
+<b class="nc">&nbsp;                    stack.add(child);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return menu;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public MenuDO getByIdLazy(Long id) {
+<b class="nc">&nbsp;        MenuDO menu = super.getById(id);</b>
+<b class="nc">&nbsp;        if (menu == null) return null;</b>
+&nbsp;
+<b class="nc">&nbsp;        menu.setHasChildren(hasChildren(id));</b>
+<b class="nc">&nbsp;        return menu;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;MenuDO&gt; getChildrenByParentId(Long parentId) {
+<b class="nc">&nbsp;        MPJLambdaWrapper&lt;MenuDO&gt; wrapper = new MPJLambdaWrapper&lt;MenuDO&gt;()</b>
+<b class="nc">&nbsp;                .selectAll(MenuDO.class)</b>
+<b class="nc">&nbsp;                .selectSub(</b>
+&nbsp;                        MenuDO.class,
+&nbsp;                        w -&gt; w
+<b class="nc">&nbsp;                                .selectCount(MenuDO::getId)</b>
+<b class="nc">&nbsp;                                .eq(MenuDO::getParentId, MenuDO::getId),</b>
+&nbsp;                        MenuDO::getHasChildren)
+<b class="nc">&nbsp;                .eq(MenuDO::getParentId, parentId);</b>
+<b class="nc">&nbsp;        return listDeep(</b>
+&nbsp;                wrapper,
+<b class="nc">&nbsp;                conf -&gt; conf.property(MenuDO::getHasChildren).deep(1)</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;MenuDO&gt; getChildrenByParentIdDeep(Long parentId) {
+<b class="nc">&nbsp;        MPJLambdaWrapper&lt;MenuDO&gt; wrapper = new MPJLambdaWrapper&lt;MenuDO&gt;()</b>
+<b class="nc">&nbsp;                .selectAll(MenuDO.class)</b>
+<b class="nc">&nbsp;                .eq(MenuDO::getParentId, parentId);</b>
+<b class="nc">&nbsp;        return listDeep(</b>
+&nbsp;                wrapper,
+<b class="nc">&nbsp;                conf -&gt; conf.property(MenuDO::getChildren).loop(true)</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-10 20:48</div>
+</div>
+</body>
+</html>

@@ -8,21 +8,21 @@ import org.springframework.http.HttpStatus;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class CustomException extends RuntimeException {
+public class GlobalException extends RuntimeException {
 
     private int code;
 
-    public CustomException(String message) {
+    public GlobalException(String message) {
         super(message);
         this.code = HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
-    public CustomException(HttpStatus httpStatus, String message) {
+    public GlobalException(HttpStatus httpStatus, String message) {
         super(message);
         this.code = httpStatus.value();
     }
 
-    public CustomException(int code, String message) {
+    public GlobalException(int code, String message) {
         super(message);
         this.code = code;
     }

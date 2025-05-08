@@ -3,7 +3,10 @@ package com.spidey.openmusicapi.common;
 import com.spidey.openmusicapi.enums.OrderType;
 import lombok.Data;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class PageWrapper<T> {
