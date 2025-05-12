@@ -25,6 +25,11 @@ public class MenuController {
         return getSuccess(menuService.getRoutes());
     }
 
+    @GetMapping("menus")
+    public ApiResponse<List<MenuDO>> getMenus() {
+        return getSuccess(menuService.getMenus());
+    }
+
     @GetMapping("{menuId}")
     public ApiResponse<MenuDO> getMenuById(@PathVariable Long menuId) {
         return getSuccess(checkNull(menuService.getById(menuId), "菜单不存在"));

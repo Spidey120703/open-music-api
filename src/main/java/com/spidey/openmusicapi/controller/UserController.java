@@ -8,6 +8,7 @@ import com.spidey.openmusicapi.entity.UserDTO;
 import com.spidey.openmusicapi.service.IUserService;
 import com.spidey.openmusicapi.utils.SFPageUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +21,13 @@ public class UserController {
 
     private final IUserService userService;
 
+    @PreAuthorize("@perm.hasPerm('perm:user:get')")
     @GetMapping("{userId}")
     public ApiResponse<UserDO> getUserById(@PathVariable Long userId) {
         return getSuccess(checkNull(userService.getByIdDeep(userId), "用户不存在"));
     }
 
+    @PreAuthorize("@perm.hasPerm('perm:user:list')")
     @GetMapping
     public ApiResponse<SFPage<UserDO>> getUsersByPage(@ModelAttribute SFModel model) {
         return getSuccess(
@@ -38,6 +41,7 @@ public class UserController {
     }
 
 
+    @PreAuthorize("@perm.hasPerm('perm:user:add')")
     @PostMapping
     public ApiResponse<Boolean> addUser(@RequestBody @Validated UserDTO user) {
         checkUniqueIdentifier(userService, user, "用户名已存在", UserDO::getUsername, UserDO::getId);
@@ -45,6 +49,7 @@ public class UserController {
         return verifyCreateResult(userService.save(user));
     }
 
+    @PreAuthorize("@perm.hasPerm('perm:user:edit')")
     @PutMapping("{userId}")
     public ApiResponse<Boolean> updateUserById(@PathVariable Long userId, @RequestBody @Validated UserDO user) {
         user.setId(userId);
@@ -53,6 +58,7 @@ public class UserController {
         return verifyUpdateResult(userService.updateById(user));
     }
 
+    @PreAuthorize("@perm.hasPerm('perm:user:delete')")
     @DeleteMapping("{userId}")
     public ApiResponse<Boolean> deleteUser(@PathVariable Long userId) {
         return verifyDeleteResult(userService.removeById(userId));

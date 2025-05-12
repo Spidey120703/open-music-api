@@ -16,6 +16,13 @@ spring:
     jackson:
         date-format: yyyy-MM-dd HH:mm:ss
         time-zone: GMT+8
+    servlet:
+        multipart:
+            max-file-size: 1GB
+            max-request-size: 1GB
+    devtools:
+      restart:
+          enabled: true
 
 mybatis-plus:
     global-config:
@@ -33,5 +40,14 @@ logging:
 
 server:
     port: 8080
+
+token:
+    secret: openmusic.spidey.io@120703:Marvel2025./
+    header: Authorization
+    expiration: 86400000
+
+file:
+    upload:
+        path: ./upload
 
 

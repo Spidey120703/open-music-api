@@ -10,6 +10,8 @@ public interface IMenuService extends MPJDeepService<MenuDO> {
 
     List<RouteDO> getRoutes();
 
+    List<MenuDO> getMenus();
+
     MenuDO getById(Long menuId);
 
     MenuDO getByIdLazy(Long menuId);

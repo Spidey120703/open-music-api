@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.yulichang.extension.mapping.base.MPJDeepService;
+import com.github.yulichang.query.MPJQueryWrapper;
 import com.spidey.openmusicapi.common.SFModel;
 import com.spidey.openmusicapi.common.SFPage;
 import lombok.NonNull;
@@ -13,7 +14,7 @@ import lombok.experimental.UtilityClass;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static com.spidey.openmusicapi.utils.IdentifierUtils.toSnakeCase;
+import static com.spidey.openmusicapi.utils.IdentifierUtils.camel2snake;
 
 @UtilityClass
 public class SFPageUtils {
@@ -36,7 +37,7 @@ public class SFPageUtils {
                 model.isSearching() && !columns.isEmpty(),
                 qw -> {
                     for (int i = 0; i < columns.size(); i++) {
-                        qw.like(toSnakeCase(columns.get(i)), model.getKeyword());
+                        qw.like(camel2snake(columns.get(i)), model.getKeyword());
                         if (i + 1 < columns.size()) {
                             qw.or();
                         }
@@ -47,10 +48,10 @@ public class SFPageUtils {
         wrapper.and(
                 model.isFiltering(),
                 qw -> model.getFilters().forEach((s, list) -> {
-                    qw.in(toSnakeCase(s), list);
+                    qw.in(camel2snake(s), list);
                 }));
         // 排序逻辑
-        wrapper.orderBy(model.isSorting(), model.isAscending(), toSnakeCase(model.getSort()));
+        wrapper.orderBy(model.isSorting(), model.isAscending(), camel2snake(model.getSort()));
         return pageExecutor.apply(page, wrapper);
     }
 

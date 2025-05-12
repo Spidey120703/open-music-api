@@ -11,6 +11,9 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+/**
+ * 统一响应的状态码
+ */
 @ControllerAdvice
 public class ResponseAdviser implements ResponseBodyAdvice<ApiResponse<?>> {
     @Override

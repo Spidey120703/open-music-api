@@ -73,9 +73,9 @@ userInsertFormatter = "INSERT INTO \n" \
 for i in range(1, 121):
     print(userInsertFormatter.format(
         username=f"user{i}",
-        password="12345678",
+        password="$2a$10$noBcKOxevvNGBdogximaC.URVUd.I7cOzOuEaL69DxUyqC8NpzU0C",
         nickname=f"User {i}",
         email=f"user{i}@open-music.com",
         phone=random_numbers().mobile()[0],
-        role=random.randint(1, 2)
+        role=random.randint(1, 3)
     ))

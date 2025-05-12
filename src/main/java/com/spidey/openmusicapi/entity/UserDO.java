@@ -24,7 +24,7 @@ public class UserDO {
     @NotBlank(message = "用户名不能为空")
     private String username;
 
-    @TableField(select = false)
+    @JsonIgnore
     private String password;
 
     private String avatar;

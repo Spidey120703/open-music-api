@@ -21,7 +21,6 @@ public class MenuDO {
     @NotBlank(message = "菜单名不能为空")
     private String name;
 
-    @NotBlank(message = "路由不能为空")
     private String route;
     private String icon;
     private String title;

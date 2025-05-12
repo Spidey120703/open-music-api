@@ -1,8 +1,11 @@
 package com.spidey.openmusicapi.exception;
 
 import com.spidey.openmusicapi.common.ApiResponse;
+import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,7 +24,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ApiResponse<?>> handleException(Exception ex) {
+    public ResponseEntity<ApiResponse<?>> handleException(@NonNull Exception ex) {
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -32,7 +35,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiResponse<?>> handleRuntimeException(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<?>> handleRuntimeException(@NonNull RuntimeException ex) {
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
@@ -42,7 +45,7 @@ public class GlobalExceptionHandler {
      * @return 响应
      */
     @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<ApiResponse<?>> handleCustomException(GlobalException ex) {
+    public ResponseEntity<ApiResponse<?>> handleCustomException(@NonNull GlobalException ex) {
         return new ResponseEntity<>(ApiResponse.error(ex.getCode(), ex.getMessage()), HttpStatus.valueOf(ex.getCode()));
     }
 
@@ -53,7 +56,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(
+            @NonNull MethodArgumentNotValidException ex) {
         return new ResponseEntity<>(
                 ApiResponse.error(
                         ex.getStatusCode().value(),
@@ -63,5 +67,29 @@ public class GlobalExceptionHandler {
                                 .collect(Collectors.joining("\n")),
                         ex.getBindingResult().getFieldErrors()),
                 ex.getStatusCode());
+    }
+
+    /**
+     * 用户名不存在异常处理
+     * @param ex 用户名不存在异常
+     * @return 响应
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleCustomException(@NonNull UsernameNotFoundException ex) {
+        return new ResponseEntity<>(
+                ApiResponse.error(HttpStatus.NOT_FOUND.value(), ex.getMessage()),
+                HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * 权限不足异常处理
+     * @param ex 权限不足异常
+     * @return 响应
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleCustomException(@NonNull AuthorizationDeniedException ignored) {
+        return new ResponseEntity<>(
+                ApiResponse.error(HttpStatus.FORBIDDEN.value(), "暂无权限"),
+                HttpStatus.FORBIDDEN);
     }
 }

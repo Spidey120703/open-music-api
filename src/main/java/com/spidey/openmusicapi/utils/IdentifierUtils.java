@@ -1,6 +1,7 @@
 package com.spidey.openmusicapi.utils;
 
 import com.google.common.base.CaseFormat;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -18,8 +19,19 @@ public class IdentifierUtils {
      * @param str 转换前的小驼峰命名的字符串
      * @return 转换后的小蛇形命名的字符串
      */
-    public static String toSnakeCase(String str) {
+    @NonNull
+    public static String camel2snake(@NonNull String str) {
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, str);
+    }
+
+    /**
+     * 将横线小驼峰转换成大驼峰
+     * @param str 横线小驼峰
+     * @return 大驼峰
+     */
+    @NonNull
+    public static String kebab2Camel(@NonNull String str) {
+        return CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, str);
     }
 
 }
