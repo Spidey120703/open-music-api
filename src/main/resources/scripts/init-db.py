@@ -25,7 +25,7 @@ with open("../application.yml", "r") as application_yml:
         for sql_filepath in [
             "../db/schema-mysql.sql",
             "../db/data-mysql.sql",
-            "../db/bak/artist.sql"
+            * map(lambda fn: f'../db/bak/{fn}', next(os.walk('../db/bak'))[2])
         ]:
 
             with open(sql_filepath, "r", encoding="utf-8") as sql_file:

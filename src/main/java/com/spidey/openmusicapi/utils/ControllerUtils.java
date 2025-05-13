@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.spidey.openmusicapi.common.ApiResponse;
 import com.spidey.openmusicapi.exception.BadRequestException;
-import com.spidey.openmusicapi.exception.GlobalException;
+import com.spidey.openmusicapi.exception.NotFoundException;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.Contract;
 
 @UtilityClass
@@ -18,7 +17,7 @@ public class ControllerUtils {
     @NonNull
     public static <T> T checkNull(T entity, String message) {
         if (entity == null) {
-            throw new GlobalException(HttpStatus.NOT_FOUND, message);
+            throw new NotFoundException(message);
         }
         return entity;
     }

@@ -1,7 +1,6 @@
 package com.spidey.openmusicapi.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.github.yulichang.annotation.EntityMapping;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;

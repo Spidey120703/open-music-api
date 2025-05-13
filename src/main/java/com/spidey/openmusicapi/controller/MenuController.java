@@ -52,6 +52,7 @@ public class MenuController {
 
     @PostMapping("{menuId}")
     public ApiResponse<Boolean> addMenu(@PathVariable Long menuId, @RequestBody @Validated MenuDO menu) {
+        menu.setId(null);
         checkUniqueIdentifier(menuService, menu, "菜单名称已存在", MenuDO::getName, MenuDO::getId);
         menu.setParentId(menuId);
         return verifyCreateResult(menuService.save(menu));

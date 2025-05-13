@@ -1,5 +1,7 @@
 package com.spidey.openmusicapi.common;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spidey.openmusicapi.enums.OrderType;
 import lombok.Data;
@@ -45,6 +47,11 @@ public class SFModel {
     public boolean isFiltering() {
         return ! filters.isEmpty()
                && filters.values().stream().anyMatch(list -> ! list.isEmpty());
+    }
+
+    @JsonIgnore
+    public <T> IPage<T> toPage() {
+        return Page.of(current, size);
     }
 
 }

@@ -28,7 +28,7 @@ public class ArtistController {
     @GetMapping
     public ApiResponse<SFPage<ArtistDO>> getArtistsByPage(@ModelAttribute SFModel model) {
         return getSuccess(
-                SFPageUtils.pagingDeep(
+                SFPageUtils.doPageDeep(
                         artistService,
                         model,
                         ArtistDO.Fields.name,
@@ -40,6 +40,7 @@ public class ArtistController {
     @PreAuthorize("@perm.hasPerm('music:artist:add')")
     @PostMapping
     public ApiResponse<Boolean> addArtist(@RequestBody @Validated ArtistDO artist) {
+        artist.setId(null);
         return verifyCreateResult(artistService.save(artist));
     }
 

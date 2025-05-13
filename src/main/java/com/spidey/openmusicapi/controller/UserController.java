@@ -31,7 +31,7 @@ public class UserController {
     @GetMapping
     public ApiResponse<SFPage<UserDO>> getUsersByPage(@ModelAttribute SFModel model) {
         return getSuccess(
-                SFPageUtils.pagingDeep(
+                SFPageUtils.doPageDeep(
                         userService,
                         model,
                         UserDO.Fields.username,
@@ -44,6 +44,7 @@ public class UserController {
     @PreAuthorize("@perm.hasPerm('perm:user:add')")
     @PostMapping
     public ApiResponse<Boolean> addUser(@RequestBody @Validated UserDTO user) {
+        user.setId(null);
         checkUniqueIdentifier(userService, user, "用户名已存在", UserDO::getUsername, UserDO::getId);
         user.setRoleId(user.getRole().getId());
         return verifyCreateResult(userService.save(user));

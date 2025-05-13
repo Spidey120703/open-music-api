@@ -44,6 +44,8 @@ public class AlbumDO {
     @TableField(exist = false)
     private List<ArtistDO> artists;
 
+    private String artistNames;
+
     @TableField(exist = false)
     @EntityMapping(thisField = Fields.id, joinField = SongDO.Fields.albumId)
     private List<SongDO> songs;

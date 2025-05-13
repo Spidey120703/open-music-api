@@ -36,7 +36,7 @@ public class RoleController {
     @GetMapping
     public ApiResponse<SFPage<RoleDO>> getRolesByPage(@ModelAttribute SFModel model) {
         return getSuccess(
-                SFPageUtils.pagingDeep(
+                SFPageUtils.doPageDeep(
                         roleService,
                         model,
                         RoleDO.Fields.name,
@@ -46,6 +46,7 @@ public class RoleController {
     @PreAuthorize("@perm.hasPerm('perm:role:add')")
     @PostMapping
     public ApiResponse<Boolean> addRole(@RequestBody @Validated RoleDO role) {
+        role.setId(null);
         checkUniqueIdentifier(roleService, role, "角色名已存在", RoleDO::getName, RoleDO::getId);
         return verifyCreateResult(roleService.save(role));
     }

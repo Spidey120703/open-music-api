@@ -3,6 +3,7 @@ package com.spidey.openmusicapi.common;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.spidey.openmusicapi.enums.OrderType;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -28,30 +29,35 @@ public class SFPage<T> {
     private Map<String, List<String>> filters;
 
     /**
-     * 用于从IPage中继承数据
+     * 用于从查询后的分页数据 IPage 对象中继承数据
      *
      * @param page IPage分页结果
-     * @param model 参数模型
      * @return SFPage分页结果
      * @param <T> 实体类型
      */
-    public static <T> SFPage<T> extend(
-            IPage<T> page,
-            SFModel model) {
-        SFPage<T> sfPage = new SFPage<>();
-        sfPage.setRecords(page.getRecords())
+    public static <T> SFPage<T> of(@NonNull IPage<T> page) {
+        return new SFPage<T>()
+                .setRecords(page.getRecords())
                 .setSize(page.getSize())
                 .setTotal(page.getTotal())
                 .setCurrent(page.getCurrent())
-                .setPages(page.getPages())
-                .setKeyword(model.getKeyword());
+                .setPages(page.getPages());
+    }
+
+    /**
+     * 从 SFModel 中提取表单数据
+     * @param model 表单对象
+     * @return 本身
+     */
+    public SFPage<T> extractFrom(@NonNull SFModel model) {
+        this.setKeyword(model.getKeyword());
         if (! model.getFilters().isEmpty()) {
-            sfPage.setFilters(model.getFilters());
+            this.setFilters(model.getFilters());
         }
         if (! model.getSort().isEmpty()) {
-            sfPage.setOrderBy(Pair.of(model.getSort(), model.getOrder()));
+            this.setOrderBy(Pair.of(model.getSort(), model.getOrder()));
         }
-        return sfPage;
+        return this;
     }
 
 }
