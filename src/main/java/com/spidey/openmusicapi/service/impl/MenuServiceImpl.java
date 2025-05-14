@@ -8,7 +8,6 @@ import com.spidey.openmusicapi.entity.MenuDO;
 import com.spidey.openmusicapi.entity.PermissionDO;
 import com.spidey.openmusicapi.entity.RouteDO;
 import com.spidey.openmusicapi.enums.MenuType;
-import com.spidey.openmusicapi.exception.UnauthorizedException;
 import com.spidey.openmusicapi.mapper.MenuMapper;
 import com.spidey.openmusicapi.service.IMenuService;
 import com.spidey.openmusicapi.service.IPermissionService;
@@ -30,8 +29,7 @@ public class MenuServiceImpl extends MPJBaseServiceImpl<MenuMapper, MenuDO> impl
 
     @Override
     public List<RouteDO> getRoutes() {
-        LoginUserDetails userDetails = SecurityUtils.getLoginUserOrThrow(
-                () -> new UnauthorizedException("用户未登录"));
+        LoginUserDetails userDetails = SecurityUtils.getLoginUserOrThrow();
 
         return permissionService
                 .getSubMenusByRoleId(userDetails.getUser().getRoleId())
@@ -84,7 +82,7 @@ public class MenuServiceImpl extends MPJBaseServiceImpl<MenuMapper, MenuDO> impl
 
     @Override
     public List<MenuDO> getMenus() {
-        LoginUserDetails userDetails = SecurityUtils.getLoginUserOrThrow(() -> new UnauthorizedException("用户未登录"));
+        LoginUserDetails userDetails = SecurityUtils.getLoginUserOrThrow();
         return getMenus(0L, userDetails.getUser().getRoleId());
     }
 

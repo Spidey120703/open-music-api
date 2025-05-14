@@ -5,7 +5,6 @@ import com.spidey.openmusicapi.common.SFModel;
 import com.spidey.openmusicapi.common.SFPage;
 import com.spidey.openmusicapi.entity.ArtistDO;
 import com.spidey.openmusicapi.service.IArtistService;
-import com.spidey.openmusicapi.utils.SFPageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,19 +21,19 @@ public class ArtistController {
 
     @GetMapping("{artistId}")
     public ApiResponse<ArtistDO> getArtistById(@PathVariable Long artistId) {
-        return getSuccess(checkNull(artistService.getByIdDeep(artistId), "艺术家不存在"));
+        return getSuccess(checkNull(artistService.getArtistById(artistId), "艺术家不存在"));
     }
 
     @GetMapping
     public ApiResponse<SFPage<ArtistDO>> getArtistsByPage(@ModelAttribute SFModel model) {
         return getSuccess(
-                SFPageUtils.doPageDeep(
-                        artistService,
-                        model,
-                        ArtistDO.Fields.name,
-                        ArtistDO.Fields.nickname,
-                        ArtistDO.Fields.bio,
-                        ArtistDO.Fields.genre));
+                SFPage.of(
+                        artistService.getArtistsByPage(model,
+                            ArtistDO.Fields.name,
+                            ArtistDO.Fields.nickname,
+                            ArtistDO.Fields.bio,
+                            ArtistDO.Fields.genre)
+                ).extractFrom(model));
     }
 
     @PreAuthorize("@perm.hasPerm('music:artist:add')")

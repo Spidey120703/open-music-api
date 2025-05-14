@@ -26,12 +26,25 @@ public class IdentifierUtils {
 
     /**
      * 将横线小驼峰转换成大驼峰
+     * 例如：hello-world->HelloWorld
      * @param str 横线小驼峰
      * @return 大驼峰
      */
     @NonNull
     public static String kebab2Camel(@NonNull String str) {
         return CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, str);
+    }
+
+    /**
+     * 将横线小驼峰转换成大蛇形。</br>
+     * 例如：hello-world->HELLO_WORLD
+     *
+     * @param str 转换前的横线小驼峰命名的字符串
+     * @return 转换后的大蛇形命名的字符串
+     */
+    @NonNull
+    public static String kebab2Snake(@NonNull String str) {
+        return CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_UNDERSCORE, str);
     }
 
 }

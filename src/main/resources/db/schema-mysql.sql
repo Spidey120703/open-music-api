@@ -2,7 +2,8 @@ DROP TABLE IF EXISTS
     `comment`, `post`,
     `role`, `user`,
     `menu`, `permission`,
-    `artist`, `album`, `song`, `artist_album`, `artist_song`;
+    `artist`, `album`, `song`, `artist_album`, `artist_song`,
+    `audit`;
 
 CREATE TABLE IF NOT EXISTS `role`
 (
@@ -89,8 +90,8 @@ CREATE TABLE IF NOT EXISTS `album`
     `type`         enum ('album', 'ep', 'single', 'compilation', 'live', 'other') NOT NULL DEFAULT 'other',
     `bio`          text,
     `artist_names` varchar(255)                                                   NOT NULL DEFAULT '',
-    `created_at`   datetime                                                       NULL DEFAULT CURRENT_TIMESTAMP,
-    `deleted`      int                                                            NULL DEFAULT 0,
+    `created_at`   datetime                                                       NULL     DEFAULT CURRENT_TIMESTAMP,
+    `deleted`      int                                                            NULL     DEFAULT 0,
     PRIMARY KEY (`id`)
 );
 
@@ -103,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `song`
     `cover`        varchar(255) NULL,
     `genre`        varchar(255) NULL,
     `release_date` date         NULL,
-    `lyric`        text,
+    `lyrics`       text,
     `bio`          text,
     `duration`     int          NULL,
     `album_id`     int          NULL,
@@ -112,8 +113,7 @@ CREATE TABLE IF NOT EXISTS `song`
     `created_at`   datetime     NULL     DEFAULT CURRENT_TIMESTAMP,
     `deleted`      int          NULL     DEFAULT 0,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`album_id`) REFERENCES `album` (`id`),
-    UNIQUE (`disc_number`, `track_number`)
+    FOREIGN KEY (`album_id`) REFERENCES `album` (`id`)
 );
 
 CREATE TABLE IF NOT EXISTS `artist_album`
@@ -164,3 +164,22 @@ CREATE TABLE IF NOT EXISTS `comment`
     -- FOREIGN KEY (`replied_id`) REFERENCES `comment`(`id`),
     FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)
 );
+
+-- 审核
+
+CREATE TABLE IF NOT EXISTS `audit`
+(
+    `id`           int                                                                NOT NULL AUTO_INCREMENT,
+    `type`         enum ('post', 'comment', 'shared')                                 NOT NULL,
+    `target_id`    int                                                                NOT NULL,
+    `status`       enum ('pending', 'processing', 'resolved', 'rejected', 'closed') NOT NULL DEFAULT 'pending',
+    `reason`       text,
+    `images`       varchar(512)                                                       NOT NULL DEFAULT '',
+    `submitter_id` int                                                                NOT NULL,
+    `submitted_at` datetime                                                           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `auditor_id`   int                                                                NULL,
+    `audited_at`   datetime                                                           NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`submitter_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`auditor_id`) REFERENCES `user` (`id`)
+)

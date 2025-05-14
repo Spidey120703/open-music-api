@@ -12,6 +12,7 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.spidey.openmusicapi.utils.IdentifierUtils.camel2snake;
@@ -29,7 +30,6 @@ public class SFPageUtils {
      * @param <W>     查询包装器类型
      * @return 分页参数
      */
-    @SuppressWarnings("DuplicatedCode")
     public <T, W extends AbstractWrapper<T, String, ? extends W>>
     W prepareForPaging(
             @NonNull W wrapper,
@@ -68,18 +68,18 @@ public class SFPageUtils {
      * @param <W>     查询包装器类型
      * @return 分页参数
      */
-    @SuppressWarnings("DuplicatedCode")
     public <T, W extends JoinAbstractWrapper<T, ? extends W>>
     W prepareForPaging(
             @NonNull W wrapper,
             @NonNull SFModel model,
             List<String> columns) {
+        Function<String, String> prepareColumn = column -> wrapper.getAlias() + "." + camel2snake(column);
         // 搜索逻辑
         wrapper.and(
                 model.isSearching() && !columns.isEmpty(),
                 qw -> {
                     for (int i = 0; i < columns.size(); i++) {
-                        qw.like(camel2snake(columns.get(i)), model.getKeyword());
+                        qw.like(prepareColumn.apply(columns.get(i)), model.getKeyword());
                         if (i + 1 < columns.size()) {
                             qw.or();
                         }
@@ -90,10 +90,10 @@ public class SFPageUtils {
         wrapper.and(
                 model.isFiltering(),
                 qw -> model.getFilters().forEach((s, list) -> {
-                    qw.in(camel2snake(s), list);
+                    qw.in(prepareColumn.apply(s), list);
                 }));
         // 排序逻辑
-        wrapper.orderBy(model.isSorting(), model.isAscending(), camel2snake(model.getSort()));
+        wrapper.orderBy(model.isSorting(), model.isAscending(), prepareColumn.apply(model.getSort()));
         return wrapper;
     }
 
@@ -160,11 +160,12 @@ public class SFPageUtils {
             SFModel model,
             String[] columns
     ) {
+        Function<String, String> prepareColumn = column -> wrapper.getAlias() + "." + camel2snake(column);
         return SFPageUtils.prepareForPaging(
                 wrapper,
                 model,
                 Stream.of(columns)
-                        .map(column -> wrapper.getAlias() + "." + column)
+                        .map(prepareColumn)
                         .toList());
     }
 

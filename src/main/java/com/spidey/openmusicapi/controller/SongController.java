@@ -34,7 +34,7 @@ public class SongController {
 
     @GetMapping("{songId}")
     public ApiResponse<SongDO> getSongById(@PathVariable Long songId) {
-        return getSuccess(checkNull(songService.getByIdDeep(songId), "歌曲不存在"));
+        return getSuccess(checkNull(songService.getSongById(songId), "歌曲不存在"));
     }
 
     @GetMapping

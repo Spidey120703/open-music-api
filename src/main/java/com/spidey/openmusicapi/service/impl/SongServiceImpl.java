@@ -25,7 +25,7 @@ public class SongServiceImpl extends MPJBaseServiceImpl<SongMapper, SongDO> impl
                 .selectCollection("artist", ArtistDO.class, SongDO::getArtists)
                 .leftJoin(ArtistSongDO.class, ArtistSongDO::getSongId, SongDO::getId)
                 .leftJoin(ArtistDO.class, "artist", ArtistDO::getId, ArtistSongDO::getArtistId)
-                // 专辑关联的曲目，一对多
+                // 专辑关联的专辑，多对一
                 .selectAssociation("album", AlbumDO.class, SongDO::getAlbum)
                 .leftJoin(AlbumDO.class, "album", AlbumDO::getId, SongDO::getAlbumId);
         return joinWrapper;
@@ -43,6 +43,5 @@ public class SongServiceImpl extends MPJBaseServiceImpl<SongMapper, SongDO> impl
     public SongDO getSongById(Long id) {
         return this.selectJoinOne(SongDO.class, getJoinWrapper().eq(SongDO::getId, id));
     }
-
 
 }

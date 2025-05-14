@@ -4,9 +4,11 @@ import com.spidey.openmusicapi.common.ApiResponse;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -75,7 +77,7 @@ public class GlobalExceptionHandler {
      * @return 响应
      */
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleCustomException(@NonNull UsernameNotFoundException ex) {
+    public ResponseEntity<ApiResponse<?>> handleUsernameNotFoundException(@NonNull UsernameNotFoundException ex) {
         return new ResponseEntity<>(
                 ApiResponse.error(HttpStatus.NOT_FOUND.value(), ex.getMessage()),
                 HttpStatus.NOT_FOUND);
@@ -87,9 +89,24 @@ public class GlobalExceptionHandler {
      * @return 响应
      */
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleCustomException(@NonNull AuthorizationDeniedException ignored) {
+    public ResponseEntity<ApiResponse<?>> handleAuthorizationDeniedException(@NonNull AuthorizationDeniedException ignored) {
         return new ResponseEntity<>(
                 ApiResponse.error(HttpStatus.FORBIDDEN.value(), "暂无权限"),
                 HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadableException(@NonNull HttpMessageNotReadableException ex) {
+        return new ResponseEntity<>(
+                ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "请求体格式错误"),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpRequestMethodNotSupportedException(@NonNull HttpRequestMethodNotSupportedException ex) {
+        return new ResponseEntity<>(
+                ApiResponse.error(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持 '%s' 请求".formatted(ex.getMethod())),
+                HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
 }

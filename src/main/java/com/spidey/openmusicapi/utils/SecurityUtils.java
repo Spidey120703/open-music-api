@@ -1,6 +1,7 @@
 package com.spidey.openmusicapi.utils;
 
 import com.spidey.openmusicapi.entity.LoginUserDetails;
+import com.spidey.openmusicapi.exception.UnauthorizedException;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.Nullable;
@@ -51,6 +52,10 @@ public class SecurityUtils {
             throw exceptionSupplier.get();
         }
         return (LoginUserDetails) authentication.getPrincipal();
+    }
+
+    public static <T extends Throwable> LoginUserDetails getLoginUserOrThrow() {
+        return getLoginUserOrThrow(() -> new UnauthorizedException("用户未登录"));
     }
 
     /**

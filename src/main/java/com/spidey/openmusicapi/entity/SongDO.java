@@ -32,7 +32,7 @@ public class SongDO {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date releaseDate;
 
-    private String lyric;
+    private String lyrics;
 
     private Integer duration;
 
