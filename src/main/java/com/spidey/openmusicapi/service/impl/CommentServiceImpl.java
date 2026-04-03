@@ -22,6 +22,7 @@ public class CommentServiceImpl extends MPJBaseServiceImpl<CommentMapper, Commen
                 model.toPage(),
                 CommentDO.class,
                 SFPageUtils.prepareForJoinListPaging(wrapper, model, columns));
+
     }
 
 }

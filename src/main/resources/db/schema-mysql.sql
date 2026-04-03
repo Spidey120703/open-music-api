@@ -156,12 +156,14 @@ CREATE TABLE IF NOT EXISTS `comment`
     `content`      text                     NOT NULL,
     `replied_type` enum ('post', 'comment') NOT NULL,
     `replied_id`   int                      NOT NULL,
+    `replied_to`    int                      NULL,
     `author_id`    int                      NOT NULL,
     `published_at` datetime                 NULL DEFAULT CURRENT_TIMESTAMP,
     `deleted`      int                      NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     -- FOREIGN KEY (`replied_id`) REFERENCES `post`(`id`),
     -- FOREIGN KEY (`replied_id`) REFERENCES `comment`(`id`),
+    FOREIGN KEY (`replied_to`) REFERENCES `user`(`id`),
     FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)
 );
 
@@ -182,4 +184,4 @@ CREATE TABLE IF NOT EXISTS `audit`
     PRIMARY KEY (`id`),
     FOREIGN KEY (`submitter_id`) REFERENCES `user` (`id`),
     FOREIGN KEY (`auditor_id`) REFERENCES `user` (`id`)
-)
+);

@@ -30,6 +30,11 @@ public class CommentDO {
     @TableField(exist = false)
     private PostDO repliedPost;
 
+    private Long repliedTo;
+
+    @TableField(exist = false)
+    private UserDO beRepliedTo;
+
     private Long authorId;
 
     @TableField(exist = false)

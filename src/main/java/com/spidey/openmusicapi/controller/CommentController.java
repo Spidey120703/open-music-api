@@ -7,6 +7,7 @@ import com.spidey.openmusicapi.common.SFPage;
 import com.spidey.openmusicapi.entity.CommentDO;
 import com.spidey.openmusicapi.entity.LoginUserDetails;
 import com.spidey.openmusicapi.entity.PostDO;
+import com.spidey.openmusicapi.entity.UserDO;
 import com.spidey.openmusicapi.enums.RepliedType;
 import com.spidey.openmusicapi.exception.BadRequestException;
 import com.spidey.openmusicapi.exception.ForbiddenException;
@@ -51,18 +52,23 @@ public class CommentController {
             throw new BadRequestException("不支持评论 %s 类型".formatted(repliedType));
         }
 
-        MPJLambdaWrapper<CommentDO> wrapper = new MPJLambdaWrapper<>();
+        MPJLambdaWrapper<CommentDO> wrapper = new MPJLambdaWrapper<>("comment");
         wrapper
-                .eq(CommentDO::getRepliedType, type)
-                .eq(CommentDO::getRepliedId, repliedId);
+                .selectAll(CommentDO.class, wrapper.getAlias())
+                .eq(wrapper.getAlias(), CommentDO::getRepliedType, type)
+                .eq(wrapper.getAlias(), CommentDO::getRepliedId, repliedId)
+                .selectAssociation("author", UserDO.class, CommentDO::getAuthor)
+                .leftJoin(UserDO.class, "author", UserDO::getId, wrapper.getAlias(), CommentDO::getAuthorId)
+                .selectAssociation("be_replied_to", UserDO.class, CommentDO::getBeRepliedTo)
+                .leftJoin(UserDO.class, "be_replied_to", UserDO::getId, wrapper.getAlias(), CommentDO::getRepliedTo);
 
         switch (type) {
             case POST -> wrapper
-                    .selectAssociation("post", PostDO.class, CommentDO::getRepliedPost)
-                    .leftJoin(PostDO.class, "post", PostDO::getId, CommentDO::getRepliedId);
+                    .selectAssociation("joined_post", PostDO.class, CommentDO::getRepliedPost)
+                    .leftJoin(PostDO.class, "joined_post", PostDO::getId, CommentDO::getRepliedId);
             case COMMENT -> wrapper
-                    .selectAssociation("comment", CommentDO.class, CommentDO::getRepliedComment)
-                    .leftJoin(CommentDO.class, "comment", CommentDO::getId, CommentDO::getRepliedId);
+                    .selectAssociation("joined_comment", CommentDO.class, CommentDO::getRepliedComment)
+                    .leftJoin(CommentDO.class, "joined_comment", CommentDO::getId, CommentDO::getRepliedId);
         }
 
         return getSuccess(
